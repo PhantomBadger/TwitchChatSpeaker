@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33502.453
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TwitchChatSpeaker", "TwitchChatSpeaker\TwitchChatSpeaker.csproj", "{2708CAAA-44D2-4ECD-B9DC-AC90F2E8ADCF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2708CAAA-44D2-4ECD-B9DC-AC90F2E8ADCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2708CAAA-44D2-4ECD-B9DC-AC90F2E8ADCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2708CAAA-44D2-4ECD-B9DC-AC90F2E8ADCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2708CAAA-44D2-4ECD-B9DC-AC90F2E8ADCF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2A99AF5F-7AB0-402A-A815-7CCCF0E1DCF7}
+	EndGlobalSection
+EndGlobal
