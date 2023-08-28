@@ -9,16 +9,5 @@ namespace Settings
     public abstract class TwitchSettingsContext
     {
         public const string SettingsFileName = "TwitchChatSpeaker.settings";
-        public const string TwitchOAuthKey = "TwitchOAuth";
-        public const string TwitchChannelName = "TwitchChannelName";
-
-        public static Dictionary<string, string> GetDefaultSettings()
-        {
-            return new Dictionary<string, string>()
-            {
-                { TwitchOAuthKey, "" },
-                { TwitchChannelName, "" }
-            };
-        }
     }
 }

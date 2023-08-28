@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using Settings;
 using Logging;
 using Logging.API;
+using TwitchChatSpeaker.Helpers;
 
 namespace TwitchChatSpeaker
 {
@@ -48,15 +49,15 @@ namespace TwitchChatSpeaker
             logger.Information($"Will speak chat messages in one of '{installedVoices.Count}' installed voices");
 
             // Get the user settings
-            UserSettings userSettings = new UserSettings(TwitchSettingsContext.SettingsFileName, TwitchSettingsContext.GetDefaultSettings(), logger);
-
+            var userSettings = FileHelper.LoadSettingsAsync().GetAwaiter().GetResult(); // Bypass for no async here.
+            
             // Seems to be required to save the TwitchLib dying sometimes
             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
             // Initialise the settings and attempt to load the OAuth Token
-            string oAuthToken = userSettings.GetSettingOrDefault(TwitchSettingsContext.TwitchOAuthKey, string.Empty);
-            string twitchName = userSettings.GetSettingOrDefault(TwitchSettingsContext.TwitchChannelName, string.Empty);
-
+            var oAuthToken = userSettings.TwitchOAuthKey;
+            var twitchName = userSettings.TwitchChannelName;
+            
             // If the Oauth Token is bad, exit now
             if (string.IsNullOrWhiteSpace(oAuthToken))
             {
