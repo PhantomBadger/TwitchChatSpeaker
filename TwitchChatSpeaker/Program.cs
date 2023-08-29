@@ -170,28 +170,20 @@ namespace TwitchChatSpeaker
             }
 
             // Moderation checks
-            if (UserSettings.FilterMessages && Moderation.FilterCheck(rawMessage, UserSettings)) return;
-            var (tooManyEmotes, totalEmoteCount, emotePercentage) = Moderation.EmojiCheck(rawMessage, UserSettings, EmoteManager);
-            if (UserSettings.LimitEmojis && tooManyEmotes) return;
+            if (UserSettings.FilterMessages && Moderation.FilterCheck(rawMessage, UserSettings))
+            {
+                return;
+            }
+            EmojiCheckResult result = Moderation.EmojiCheck(rawMessage, UserSettings, EmoteManager);
+            if (UserSettings.LimitEmojis && result.ContainsTooManyEmotes)
+            {
+                return;
+            }
 
             // We reset it here because then it's either unique or repeated but it's going through!
             UniqueAttemptCount = 0;
             
-            MessagesToReadOut.Add(new TTSMessage(rawMessage, totalEmoteCount, emotePercentage));
-        }
-    }
-
-    public class TTSMessage
-    {
-        public string Message;
-        public int EmojiCount;
-        public double? PercentageOfEmotes;
-
-        public TTSMessage(string message, int emojiCount, double? perEmojiCount)
-        {
-            Message = message;
-            EmojiCount = emojiCount;
-            PercentageOfEmotes = perEmojiCount;
+            MessagesToReadOut.Add(new TTSMessage(rawMessage, result.TotalEmotesInMessage, result.EmotePercentage));
         }
     }
 }

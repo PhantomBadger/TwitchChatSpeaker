@@ -39,7 +39,9 @@ public static class FileHelper
             settings = JsonConvert.DeserializeObject<UserSettings>(fileContents);
             logger.Information(JsonConvert.SerializeObject(settings, Formatting.Indented).Replace("\r\n", "\n"));
             if (settings == null)
+            {
                 throw new InvalidDataException($"Failed to deserialize settings at {GetFilePath(TwitchSettingsContext.SettingsFileName)}");
+            }
         }
 
         return settings;

@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Settings
 {
-    public abstract class TwitchSettingsContext
+    /// <summary>
+    /// Collection of constants for accessing the settings files
+    /// </summary>
+    public abstract class Constants
     {
         public const string SettingsFileName = "TwitchChatSpeaker.settings.json";
     }
