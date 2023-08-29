@@ -22,25 +22,25 @@ public static class FileHelper
         var settings = new UserSettings(); // Sets the default configuration values for now.
     
         ILogger logger = new ConsoleLogger();
-        logger.Information(GetFilePath(TwitchSettingsContext.SettingsFileName));
+        logger.Information(GetFilePath(Constants.SettingsFileName));
 
-        if (!File.Exists(GetFilePath(TwitchSettingsContext.SettingsFileName)))
+        if (!File.Exists(GetFilePath(Constants.SettingsFileName)))
         {
             // Convert default UserSettings into JSON using JsonConvert and save file.
             logger.Information("Couldn't find config file.");
             var defaultFileContents = JsonConvert.SerializeObject(settings, Formatting.Indented).Replace("\r\n", "\n"); // Normalise some stuff
-            await File.WriteAllTextAsync(GetFilePath(TwitchSettingsContext.SettingsFileName), defaultFileContents);
+            await File.WriteAllTextAsync(GetFilePath(Constants.SettingsFileName), defaultFileContents);
         }
         else
         {
             // File found, read and deseralize into a UserSettings which we store as settings.
             logger.Information("Found config");
-            var fileContents = await File.ReadAllTextAsync(GetFilePath(TwitchSettingsContext.SettingsFileName));
+            var fileContents = await File.ReadAllTextAsync(GetFilePath(Constants.SettingsFileName));
             settings = JsonConvert.DeserializeObject<UserSettings>(fileContents);
             logger.Information(JsonConvert.SerializeObject(settings, Formatting.Indented).Replace("\r\n", "\n"));
             if (settings == null)
             {
-                throw new InvalidDataException($"Failed to deserialize settings at {GetFilePath(TwitchSettingsContext.SettingsFileName)}");
+                throw new InvalidDataException($"Failed to deserialize settings at {GetFilePath(Constants.SettingsFileName)}");
             }
         }
 
@@ -50,6 +50,6 @@ public static class FileHelper
     public static async Task SaveSettingsAsync(UserSettings settings)
     {
         var fileContents = JsonConvert.SerializeObject(settings, Formatting.Indented).Replace("\r\n", "\n"); // Normalise some stuff
-        await File.WriteAllTextAsync(GetFilePath(TwitchSettingsContext.SettingsFileName), fileContents);
+        await File.WriteAllTextAsync(GetFilePath(Constants.SettingsFileName), fileContents);
     }
 }

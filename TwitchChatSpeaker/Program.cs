@@ -70,14 +70,14 @@ namespace TwitchChatSpeaker
             // If the Oauth Token is bad, exit now
             if (string.IsNullOrWhiteSpace(oAuthToken))
             {
-                logger.Error($"No valid OAuth token found in the {TwitchSettingsContext.SettingsFileName} file!");
+                logger.Error($"No valid OAuth token found in the {Constants.SettingsFileName} file!");
                 logger.Information($"Press any key to exit...");
                 logger.ReadChar();
                 return;
             }
             if (string.IsNullOrWhiteSpace(twitchName))
             {
-                logger.Error($"No valid TwitchAccountName found in the {TwitchSettingsContext.SettingsFileName} file!");
+                logger.Error($"No valid TwitchAccountName found in the {Constants.SettingsFileName} file!");
                 logger.Information($"Press any key to exit...");
                 logger.ReadChar();
                 return;
