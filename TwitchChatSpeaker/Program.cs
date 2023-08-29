@@ -9,26 +9,35 @@ using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using Settings;
 using Logging;
-using Logging.API;
+using Microsoft.Extensions.Logging;
+using TwitchChatSpeaker.Emojis;
 using TwitchChatSpeaker.Helpers;
+using ILogger = Logging.API.ILogger;
 
 namespace TwitchChatSpeaker
 {
     public class Program
     {
-        private static BlockingCollection<string> MessagesToReadOut;
-        private static ConcurrentQueue<string> MessagesToReadOutQueue;
+        private static ILogger logger;
+        private static UserSettings UserSettings;
+        private static EmojiManager EmoteManager;
+        
+        // State parameters
+        private static BlockingCollection<TTSMessage> MessagesToReadOut;
+        private static ConcurrentQueue<TTSMessage> MessagesToReadOutQueue;
         private static bool isSpeaking;
-
+        private static string LastMessage = "";
+        private static int UniqueAttemptCount = 0;
+        
         /// <summary>
         /// Main entry point of the application, setups up required synthesizers and twitch clients and then polls an async queue for
         /// messages whilst the client listens for them on a different thread
         /// </summary>
         static void Main(string[] args)
         {
-            ILogger logger = new ConsoleLogger();
-            MessagesToReadOutQueue = new ConcurrentQueue<string>();
-            MessagesToReadOut = new BlockingCollection<string>(MessagesToReadOutQueue);
+            logger = new ConsoleLogger();
+            MessagesToReadOutQueue = new ConcurrentQueue<TTSMessage>();
+            MessagesToReadOut = new BlockingCollection<TTSMessage>(MessagesToReadOutQueue);
             isSpeaking = false;
 
             // Set up synthesizer to the default output - trust this is enough for now
@@ -49,14 +58,14 @@ namespace TwitchChatSpeaker
             logger.Information($"Will speak chat messages in one of '{installedVoices.Count}' installed voices");
 
             // Get the user settings
-            var userSettings = FileHelper.LoadSettingsAsync().GetAwaiter().GetResult(); // Bypass for no async here.
+            UserSettings = FileHelper.LoadSettingsAsync().GetAwaiter().GetResult(); // Bypass for no async here.
             
             // Seems to be required to save the TwitchLib dying sometimes
             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
             // Initialise the settings and attempt to load the OAuth Token
-            var oAuthToken = userSettings.TwitchOAuthKey;
-            var twitchName = userSettings.TwitchChannelName;
+            var oAuthToken = UserSettings.TwitchOAuthKey;
+            var twitchName = UserSettings.TwitchChannelName;
             
             // If the Oauth Token is bad, exit now
             if (string.IsNullOrWhiteSpace(oAuthToken))
@@ -77,6 +86,9 @@ namespace TwitchChatSpeaker
             oAuthToken = oAuthToken.Trim();
             twitchName = twitchName.Trim();
             logger.Information($"Setting up Twitch Chat Client for '{twitchName}'");
+            
+            // Set up the EmojiManager
+            EmoteManager = new EmojiManager(UserSettings.TwitchChannelId);
 
             // Set up the TwitchClient using our provided credentials
             TwitchClient twitchClient = null;
@@ -105,15 +117,24 @@ namespace TwitchChatSpeaker
             logger.Information($"================================");
             do
             {
-                string nextMessage = MessagesToReadOut.Take();
+                TTSMessage nextMessage = MessagesToReadOut.Take();
                 isSpeaking = true;
 
                 // pick a new voice
                 var newVoice = installedVoices[random.Next(installedVoices.Count)];
                 synthesizer.SelectVoice(newVoice.VoiceInfo.Name);
 
-                logger.Information($"Speaking \"{nextMessage}\"");
-                synthesizer.Speak(nextMessage);
+                var percentString = "Percentage not calculated";
+                if (nextMessage.PercentageOfEmotes != null)
+                {
+                    percentString = $"{percentString}% emote";
+                }
+
+                logger.Information($"Speaking \"{nextMessage.Message}\" with {nextMessage.EmojiCount} emotes ({percentString}).");
+                synthesizer.Speak(nextMessage.Message);
+                
+                // Set last message to avoid repeats.
+                LastMessage = nextMessage.Message;
 
                 isSpeaking = false;
             } while (true);
@@ -129,13 +150,48 @@ namespace TwitchChatSpeaker
                 return;
             }
 
+            // Remove a weird bug I've noticed with styff
             string rawMessage = e.ChatMessage.Message;
-            if (rawMessage.Length > 80)
+            if (rawMessage.Length > UserSettings.MaxMessageLength)
             {
                 return;
             }
-            MessagesToReadOut.Add(rawMessage);
+
+            if (UserSettings.PrioritiseUniqueMessages && UniqueAttemptCount < UserSettings.AttemptsBeforeFailingUnique)
+            {
+                // Try to get a message that isn't equal to the previous message.
+                if (rawMessage == LastMessage)
+                {
+                    UniqueAttemptCount++;
+                    logger.Information(
+                        $"Message read matches previous read message (\"{rawMessage}\"), trying {(UserSettings.AttemptsBeforeFailingUnique - UniqueAttemptCount) + 1} more times.");
+                    return;
+                }
+            }
+
+            // Moderation checks
+            if (UserSettings.FilterMessages && Moderation.FilterCheck(rawMessage, UserSettings)) return;
+            var (tooManyEmotes, totalEmoteCount, emotePercentage) = Moderation.EmojiCheck(rawMessage, UserSettings, EmoteManager);
+            if (UserSettings.LimitEmojis && tooManyEmotes) return;
+
+            // We reset it here because then it's either unique or repeated but it's going through!
+            UniqueAttemptCount = 0;
+            
+            MessagesToReadOut.Add(new TTSMessage(rawMessage, totalEmoteCount, emotePercentage));
         }
     }
-    
+
+    public class TTSMessage
+    {
+        public string Message;
+        public int EmojiCount;
+        public double? PercentageOfEmotes;
+
+        public TTSMessage(string message, int emojiCount, double? perEmojiCount)
+        {
+            Message = message;
+            EmojiCount = emojiCount;
+            PercentageOfEmotes = perEmojiCount;
+        }
+    }
 }

@@ -8,6 +8,6 @@ namespace Settings
 {
     public abstract class TwitchSettingsContext
     {
-        public const string SettingsFileName = "TwitchChatSpeaker.settings";
+        public const string SettingsFileName = "TwitchChatSpeaker.settings.json";
     }
 }
