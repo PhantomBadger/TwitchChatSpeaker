@@ -1,6 +1,4 @@
-﻿using Logging;
-using Logging.API;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using TwitchChatSpeaker.Emojis.types;
 using TwitchChatSpeaker.Emojis.utils;
 using TwitchLib.Client.Models;
@@ -40,8 +38,9 @@ public class EmojiManager
     /// Returns <see langword="true"/> if the provided string is an emote, and <see langword="false"/> if not
     /// </summary>
     /// <param name="potentialEmote">The string to determine if it's an emote or not</param>
+    /// <param name="twitchEmotes">An <see cref="EmoteSet"/> containing emotes the message includes</param>
     /// <returns><see langword="true"/> if the provided string is an emote, and <see langword="false"/> if not</returns>
-    public bool IsEmote(string potentialEmote)
+    public bool IsEmote(string potentialEmote, EmoteSet twitchEmotes)
     {
         if (string.IsNullOrWhiteSpace(potentialEmote))
         {
@@ -49,7 +48,19 @@ public class EmojiManager
         }
 
         var isEmote = false;
-        foreach (var emote in emotes)
+        var allEmotes = new List<TTSEmote>();
+        
+        foreach (var twitchEmote in twitchEmotes.Emotes)
+        {
+            allEmotes.Add(new TTSEmote(twitchEmote.Id, twitchEmote.Name, twitchEmote.ImageUrl));
+        }
+
+        foreach (var sevenTvEmote in emotes)
+        {
+            allEmotes.Add(new TTSEmote(sevenTvEmote.ID, sevenTvEmote.Name, sevenTvEmote.Data.Host.URL));
+        }
+        
+        foreach (var emote in allEmotes)
         {
             if (isEmote)
             {
@@ -65,19 +76,32 @@ public class EmojiManager
     }
 
     /// <summary>
-    /// Gets the <see cref="SevenTVEmote"/> for the provided string if one exists
+    /// Gets the <see cref="TTSEmote"/> for the provided string if one exists
     /// </summary>
     /// <param name="potentialEmote">The string to determine if it's an emote or not</param>
-    /// <returns>The <see cref="SevenTVEmote"/> of the string if found, <see langword="null"/> if none is found</returns>
-    public SevenTVEmote? GetEmote(string potentialEmote)
+    /// <param name="twitchEmotes">An <see cref="EmoteSet"/> containing emotes the message includes</param>
+    /// <returns>The <see cref="TTSEmote"/> of the string if found, <see langword="null"/> if none is found</returns>
+    public TTSEmote? GetEmote(string potentialEmote, EmoteSet twitchEmotes)
     {
-        SevenTVEmote? isEmote = null;
+        TTSEmote? isEmote = null;
+        var allEmotes = new List<TTSEmote>();
+        
+        foreach (var twitchEmote in twitchEmotes.Emotes)
+        {
+            allEmotes.Add(new TTSEmote(twitchEmote.Id, twitchEmote.Name, twitchEmote.ImageUrl));
+        }
+
+        foreach (var sevenTvEmote in emotes)
+        {
+            allEmotes.Add(new TTSEmote(sevenTvEmote.ID, sevenTvEmote.Name, sevenTvEmote.Data.Host.URL));
+        }
+        
         if (string.IsNullOrWhiteSpace(potentialEmote))
         {
             return isEmote;
         }
 
-        foreach (var emote in emotes)
+        foreach (var emote in allEmotes)
         {
             if (isEmote != null)
             {
@@ -97,7 +121,7 @@ public class EmojiManager
     /// </summary>
     /// <param name="str">The string to determine if it's an emote or not. Checks each word within the string</param>
     /// <returns>The number of emotes found within the string</returns>
-    public int GetEmoteCount(string str)
+    public int GetEmoteCount(string str, EmoteSet twitchEmotes)
     {
         var count = 0;
         if (string.IsNullOrWhiteSpace(str))
@@ -109,7 +133,7 @@ public class EmojiManager
 
         foreach (var word in splitStr)
         {
-            if (IsEmote(word))
+            if (IsEmote(word, twitchEmotes))
             {
                 count++;
             }
@@ -123,7 +147,7 @@ public class EmojiManager
     /// </summary>
     /// <param name="str">The string to determine if it's an emote or not. Checks each word within the string</param>
     /// <returns>The total length of all emote names within the provided string</returns>
-    public double GetTotalEmoteNameCount(string str)
+    public double GetTotalEmoteNameCount(string str, EmoteSet twitchEmotes)
     {
         var count = 0;
         if (string.IsNullOrWhiteSpace(str))
@@ -134,7 +158,7 @@ public class EmojiManager
 
         foreach (var word in splitStr)
         {
-            var potentialEmote = GetEmote(word);
+            var potentialEmote = GetEmote(word, twitchEmotes);
             if (potentialEmote != null)
             {
                 count += potentialEmote.Name.Length;

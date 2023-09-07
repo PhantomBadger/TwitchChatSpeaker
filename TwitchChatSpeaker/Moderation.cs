@@ -2,6 +2,7 @@
 using Logging.API;
 using Settings;
 using TwitchChatSpeaker.Emojis;
+using TwitchLib.Client.Models;
 
 namespace TwitchChatSpeaker;
 
@@ -25,17 +26,17 @@ public static class Moderation
         return trip;
     }
 
-    public static EmojiCheckResult EmojiCheck(string message, UserSettings settings, EmojiManager emojiManager)
+    public static EmojiCheckResult EmojiCheck(string message, EmoteSet twitchEmotes, UserSettings settings, EmojiManager emojiManager)
     {
         ILogger logger = new ConsoleLogger();
         
-        var totalEmoteCount = emojiManager.GetEmoteCount(message);
+        var totalEmoteCount = emojiManager.GetEmoteCount(message, twitchEmotes);
         if (totalEmoteCount <= settings.MaximumEmojiLimit)
         {
             return new EmojiCheckResult(false, totalEmoteCount, null);
         }
         
-        var totalEmoteNameCount = emojiManager.GetTotalEmoteNameCount(message);
+        var totalEmoteNameCount = emojiManager.GetTotalEmoteNameCount(message, twitchEmotes);
         var totalMessageCount = Double.Parse(message.Length.ToString());
         
         logger.Information(totalEmoteNameCount.ToString());

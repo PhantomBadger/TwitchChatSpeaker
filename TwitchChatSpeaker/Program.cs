@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Speech.AudioFormat;
 using System.Speech.Synthesis;
 using TwitchLib.Client.Models;
 using TwitchLib.Client;
@@ -9,7 +8,6 @@ using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using Settings;
 using Logging;
-using Microsoft.Extensions.Logging;
 using TwitchChatSpeaker.Emojis;
 using TwitchChatSpeaker.Helpers;
 using ILogger = Logging.API.ILogger;
@@ -99,7 +97,7 @@ namespace TwitchChatSpeaker
                 WebSocketClient webSocketClient = new WebSocketClient(clientOptions);
                 twitchClient = new TwitchClient(webSocketClient);
                 twitchClient.Initialize(credentials, twitchName);
-
+                
                 //twitchClient.OnLog += TwitchClient_OnLog;
                 twitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
 
@@ -174,7 +172,7 @@ namespace TwitchChatSpeaker
             {
                 return;
             }
-            EmojiCheckResult result = Moderation.EmojiCheck(rawMessage, UserSettings, EmoteManager);
+            EmojiCheckResult result = Moderation.EmojiCheck(rawMessage, e.ChatMessage.EmoteSet, UserSettings, EmoteManager);
             if (UserSettings.LimitEmojis && result.ContainsTooManyEmotes)
             {
                 return;
