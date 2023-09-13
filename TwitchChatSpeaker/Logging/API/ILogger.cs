@@ -25,10 +25,5 @@ namespace Logging.API
         /// Logs out an error level message
         /// </summary>
         void Error(string message);
-
-        /// <summary>
-        /// Reads <see cref="char"/> input from the user
-        /// </summary>
-        char ReadChar();
     }
 }

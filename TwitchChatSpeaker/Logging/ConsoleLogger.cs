@@ -110,11 +110,5 @@ namespace Logging
             string finalMessage = $"ERR - {message}";
             Console.WriteLine(finalMessage);
         }
-
-        /// <inheritdoc/>
-        public char ReadChar()
-        {
-            return Console.ReadKey().KeyChar;
-        }
     }
 }

@@ -26,10 +26,8 @@ public static class Moderation
         return trip;
     }
 
-    public static EmojiCheckResult EmojiCheck(string message, EmoteSet twitchEmotes, UserSettings settings, EmojiManager emojiManager)
-    {
-        ILogger logger = new ConsoleLogger();
-        
+    public static EmojiCheckResult EmojiCheck(string message, EmoteSet twitchEmotes, UserSettings settings, EmojiManager emojiManager, ILogger logger)
+    {        
         var totalEmoteCount = emojiManager.GetEmoteCount(message, twitchEmotes);
         if (totalEmoteCount <= settings.MaximumEmojiLimit)
         {

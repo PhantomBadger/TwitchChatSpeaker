@@ -2,6 +2,7 @@
 using Logging.API;
 using Newtonsoft.Json;
 using Settings;
+using System.IO;
 
 namespace TwitchChatSpeaker.Helpers;
 
@@ -17,11 +18,10 @@ public static class FileHelper
         return $"{Directory.GetCurrentDirectory()}\\{file}";
     }
     
-    public static async Task<UserSettings> LoadSettingsAsync()
+    public static UserSettings LoadSettings(ILogger logger)
     {
         var settings = new UserSettings(); // Sets the default configuration values for now.
     
-        ILogger logger = new ConsoleLogger();
         logger.Information(GetFilePath(Constants.SettingsFileName));
 
         if (!File.Exists(GetFilePath(Constants.SettingsFileName)))
@@ -29,13 +29,13 @@ public static class FileHelper
             // Convert default UserSettings into JSON using JsonConvert and save file.
             logger.Information("Couldn't find config file.");
             var defaultFileContents = JsonConvert.SerializeObject(settings, Formatting.Indented).Replace("\r\n", "\n"); // Normalise some stuff
-            await File.WriteAllTextAsync(GetFilePath(Constants.SettingsFileName), defaultFileContents);
+            File.WriteAllText(GetFilePath(Constants.SettingsFileName), defaultFileContents);
         }
         else
         {
             // File found, read and deseralize into a UserSettings which we store as settings.
             logger.Information("Found config");
-            var fileContents = await File.ReadAllTextAsync(GetFilePath(Constants.SettingsFileName));
+            var fileContents = File.ReadAllText(GetFilePath(Constants.SettingsFileName));
             settings = JsonConvert.DeserializeObject<UserSettings>(fileContents);
             logger.Information(JsonConvert.SerializeObject(settings, Formatting.Indented).Replace("\r\n", "\n"));
             if (settings == null)
@@ -47,9 +47,9 @@ public static class FileHelper
         return settings;
     }
 
-    public static async Task SaveSettingsAsync(UserSettings settings)
+    public static void SaveSettings(UserSettings settings)
     {
         var fileContents = JsonConvert.SerializeObject(settings, Formatting.Indented).Replace("\r\n", "\n"); // Normalise some stuff
-        await File.WriteAllTextAsync(GetFilePath(Constants.SettingsFileName), fileContents);
+        File.WriteAllTextAsync(GetFilePath(Constants.SettingsFileName), fileContents);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Logging.API;
 using Newtonsoft.Json;
+using System.Net.Http;
 using TwitchChatSpeaker.Emojis.types;
 using TwitchChatSpeaker.Emojis.utils;
 using TwitchLib.Client.Models;

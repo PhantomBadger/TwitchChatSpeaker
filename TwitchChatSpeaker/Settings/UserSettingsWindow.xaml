@@ -1,0 +1,61 @@
+﻿<Window x:Class="TwitchChatSpeaker.Settings.UserSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TwitchChatSpeaker.Settings"
+        mc:Ignorable="d"
+        Title="UserSettingsWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Label Content="Username" 
+               Grid.Column="0" 
+               Grid.Row="0" 
+               HorizontalAlignment="Left" 
+               VerticalAlignment="Center" 
+               Margin="11,4,11,0" />
+        <TextBox Grid.Column="1" 
+                 Grid.Row="0" 
+                 HorizontalAlignment="Stretch" 
+                 VerticalAlignment="Center" 
+                 Margin="11,4,11,0"/>
+
+        <Label Content="OAuth Token" 
+               Grid.Column="0" 
+               Grid.Row="1" 
+               HorizontalAlignment="Left" 
+               VerticalAlignment="Center" 
+               Margin="11,4,11,0"/>
+        <TextBox Grid.Column="1" 
+                   Grid.Row="1" 
+                   HorizontalAlignment="Stretch" 
+                   VerticalAlignment="Center" 
+                   Margin="11,4,11,0"/>
+        <TextBlock Grid.Column="1" 
+                   Grid.Row="2" 
+                   HorizontalAlignment="Stretch" 
+                   VerticalAlignment="Center" 
+                   Margin="11,4,11,0">
+            <Hyperlink NavigateUri="http://www.twitchapps.com/tmi/" RequestNavigate="Hyperlink_RequestNavigate">
+                Generate a token
+            </Hyperlink>
+        </TextBlock>
+
+        <Button Content="Save"
+                Grid.Row="3"
+                Grid.Column="1"
+                Margin="4"
+                Padding="11,4"
+                HorizontalAlignment="Right"/>
+    </Grid>
+</Window>

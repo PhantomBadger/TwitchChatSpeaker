@@ -1,0 +1,93 @@
+﻿<Window x:Class="TwitchChatSpeaker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TwitchChatSpeaker"
+        mc:Ignorable="d"
+        Title="{Binding WindowHeader}" Width="760" Height="165" ResizeMode="NoResize">
+    <Window.Resources>
+        <ResourceDictionary>
+            <local:InverseBooleanConverter x:Key="InverseBooleanConverterKey"/>
+        </ResourceDictionary>
+    </Window.Resources>
+    <DockPanel>
+        <!-- Top Menu Bar-->
+        <!--<Menu DockPanel.Dock="Top">
+            <MenuItem Header="Edit">
+                <MenuItem Header="Edit Settings" 
+                          Command="{Binding EditSettingsCommand}"/>
+            </MenuItem>
+        </Menu>-->
+        <!-- Window Content -->
+        <Grid DockPanel.Dock="Bottom">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Start Button-->
+            <Button Grid.Row="0" 
+                    Grid.Column="0" 
+                    Margin="11,4,0,0"
+                    Padding="4"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Stretch"
+                    Content="{Binding StartStopTTSText}" 
+                    Command="{Binding StartStopTTSCommand}"/>
+
+            <!-- Current TTS -->
+            <Label Grid.Row="0"
+                   Grid.Column="1"
+                   Margin="11,4,0,4"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Left"
+                   Content="Currently Speaking:"/>
+            <TextBox Grid.Row="0"
+                     Grid.Column="2"
+                     Margin="11,6,11,4"
+                     IsReadOnly="True"
+                     VerticalAlignment="Center"
+                     VerticalContentAlignment="Center"
+                     HorizontalAlignment="Stretch"
+                     Text="{Binding CurrentTTSMessage}"/>
+
+            <!-- Voice Settings-->
+            <Label Grid.Row="1"
+                   Grid.Column="0"
+                   Margin="11,4,0,0"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Left"
+                   Content="TTS Voice:"/>
+            <ComboBox Grid.Row="1"
+                      Grid.Column="1"
+                      Grid.ColumnSpan="2"
+                      Margin="11,4,11,0"
+                      Padding="4"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Left"
+                      IsEnabled="{Binding IsVoiceRandomized, Converter={StaticResource InverseBooleanConverterKey}}"
+                      ItemsSource="{Binding VoiceNames}"
+                      SelectedItem="{Binding SelectedVoiceName}"/>
+
+            <Label Grid.Row="2"
+                   Grid.Column="0"
+                   Margin="11,4,0,0"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Left"
+                   Content="Randomize Voice:"
+                   ToolTip="When selected, a random voice will be used for every message"/>
+            <CheckBox Grid.Row="2"
+                      Grid.Column="1"
+                      Margin="11,6,11,4"
+                      VerticalAlignment="Center"
+                      IsChecked="{Binding IsVoiceRandomized}"/>
+        </Grid>
+    </DockPanel>
+</Window>
