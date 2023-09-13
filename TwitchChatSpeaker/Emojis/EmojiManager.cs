@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Logging.API;
+using Newtonsoft.Json;
 using TwitchChatSpeaker.Emojis.types;
 using TwitchChatSpeaker.Emojis.utils;
 using TwitchLib.Client.Models;
@@ -12,16 +13,19 @@ public class EmojiManager
 {
     private readonly HttpClient client = new HttpClient();
     private readonly string channelId;
-    private readonly List<SevenTVEmote> emotes;
-    
+    private readonly List<SevenTVEmote> cachedSevenTVEmotes;
+    private readonly ILogger logger;
+
     /// <summary>
     /// Ctor for creating an <see cref="EmojiManager"/>
     /// </summary>
     /// <param name="channelId">The ID of the channel to query 7TV for to access emote sets. Cannot be null.</param>
-    public EmojiManager(string channelId)
+    /// <param name="logger">An implementation of <see cref="ILogger"/> to log to</param>
+    public EmojiManager(string channelId, ILogger logger)
     {
         this.channelId = channelId ?? throw new ArgumentNullException(nameof(channelId));
-        emotes = new List<SevenTVEmote>();
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        cachedSevenTVEmotes = new List<SevenTVEmote>();
         client = new HttpClient();
 
         var globalEmoteResponseString = client.GetStringAsync(Constants.SevenTVGlobal).GetAwaiter().GetResult();
@@ -30,8 +34,8 @@ public class EmojiManager
         var globalEmoteSet = JsonConvert.DeserializeObject<SevenTVEmoteSet>(globalEmoteResponseString);
         var channelUser = JsonConvert.DeserializeObject<SevenTVUser>(channelEmoteResponseString);
         
-        emotes.AddRange(globalEmoteSet!.Emotes);
-        emotes.AddRange(channelUser!.EmoteSet.Emotes);
+        cachedSevenTVEmotes.AddRange(globalEmoteSet!.Emotes);
+        cachedSevenTVEmotes.AddRange(channelUser!.EmoteSet.Emotes);
     }
 
     /// <summary>
@@ -44,6 +48,13 @@ public class EmojiManager
     {
         if (string.IsNullOrWhiteSpace(potentialEmote))
         {
+            logger.Warning("Unable to find emotes, Potential Emote string was empty or null!");
+            return false;
+        }
+
+        if (twitchEmotes == null)
+        {
+            logger.Error($"Unable to Get Emotes for string '{potentialEmote}' Provided set of TwitchEmotes is null!");
             return false;
         }
 
@@ -55,7 +66,7 @@ public class EmojiManager
             allEmotes.Add(new TTSEmote(twitchEmote.Id, twitchEmote.Name, twitchEmote.ImageUrl));
         }
 
-        foreach (var sevenTvEmote in emotes)
+        foreach (var sevenTvEmote in cachedSevenTVEmotes)
         {
             allEmotes.Add(new TTSEmote(sevenTvEmote.ID, sevenTvEmote.Name, sevenTvEmote.Data.Host.URL));
         }
@@ -83,6 +94,12 @@ public class EmojiManager
     /// <returns>The <see cref="TTSEmote"/> of the string if found, <see langword="null"/> if none is found</returns>
     public TTSEmote? GetEmote(string potentialEmote, EmoteSet twitchEmotes)
     {
+        if (twitchEmotes == null)
+        {
+            logger.Error($"Unable to Get Emotes for string '{potentialEmote}' Provided set of TwitchEmotes is null!");
+            return null;
+        }
+
         TTSEmote? isEmote = null;
         var allEmotes = new List<TTSEmote>();
         
@@ -91,7 +108,7 @@ public class EmojiManager
             allEmotes.Add(new TTSEmote(twitchEmote.Id, twitchEmote.Name, twitchEmote.ImageUrl));
         }
 
-        foreach (var sevenTvEmote in emotes)
+        foreach (var sevenTvEmote in cachedSevenTVEmotes)
         {
             allEmotes.Add(new TTSEmote(sevenTvEmote.ID, sevenTvEmote.Name, sevenTvEmote.Data.Host.URL));
         }
