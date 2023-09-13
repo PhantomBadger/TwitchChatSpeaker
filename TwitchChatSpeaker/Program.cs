@@ -86,7 +86,7 @@ namespace TwitchChatSpeaker
             logger.Information($"Setting up Twitch Chat Client for '{twitchName}'");
             
             // Set up the EmojiManager
-            EmoteManager = new EmojiManager(UserSettings.TwitchChannelId);
+            EmoteManager = new EmojiManager(UserSettings.TwitchChannelId, logger);
 
             // Set up the TwitchClient using our provided credentials
             TwitchClient twitchClient = null;
