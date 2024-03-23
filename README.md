@@ -1,3 +1,5 @@
+# Download the latest release [here](https://github.com/PhantomBadger/TwitchChatSpeaker/releases/tag/v1.0)
+
 # TwitchChatSpeaker
 A quick-and-simple application for speaking twitch chat messages via TTS
 
